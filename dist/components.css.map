@@ -3,14 +3,12 @@
   "file": "components.css",
   "sources": [
     "..\\src\\Button.svelte",
-    "..\\src\\Head.svelte",
-    "..\\src\\App.svelte"
+    "..\\src\\Head.svelte"
   ],
   "sourcesContent": [
     "<script>\r\n  export let open;\r\n</script>\r\n\r\n<style type=\"text/postcss\">.space{padding:.5rem 1rem}.color{color:#fff}</style>\r\n\r\n<button\r\n  class=\"color space border-none bg-teal-500 hover:bg-teal-400 rounded\"\r\n  on:click={open}>\r\n  Open\r\n</button>\r\n",
-    "<script>\r\n    export let titulo;\r\n</script>\r\n<style>nav{margin-bottom:20px}</style>\r\n<nav class=\"flex items-center justify-between bg-teal-500 p-6\">\r\n  <div class=\"flex w-500 items-center flex-shrink-0 text-white mr-6\">    \r\n    <span class=\"font-semibold text-xl tracking-tight\">{titulo}</span>\r\n  </div>  \r\n</nav>",
-    "<script>\r\n  import Button   from './Button.svelte'\r\n  import Phone    from './Phone.svelte'\r\n  import Head     from './Head.svelte'\r\n  let tit   = 'OpenWhats';\r\n  let ddi   = '';\r\n  let phone = '';\r\n  const abreZap = ()=>{\r\n    if((ddi.trim()!='')&&(phone.trim()!='')){\r\n      window.open(`https://api.whatsapp.com/send?phone=${ddi}${phone}`);       \r\n    } \r\n  }\r\n</script>\r\n\r\n<svelte:head>\r\n<title>{tit}</title>\r\n</svelte:head>\r\n<style>.box{width:75%;margin:0 auto;border:1px solid #000;background-color:#000;color:#fff;font-family:monospace}</style>\r\n<main>\r\n  <Head titulo={tit}/>\r\n  <Phone bind:ddi={ddi} bind:phone={phone}/>\r\n  <Button open={abreZap} />\r\n  <div class=\"box\">\r\n  Já precisou mandar zap pra aquele contato que você não quer adicionar? Nunca soube como fazer? Já existe solução:\r\n\r\nhttp://open-whats.surge.sh/\r\n\r\nSelecione o código do país e preencha com o DDD + número, que o open-whats abre pra você.\r\n\r\nProjeto open source do Paiva Thiago.\r\n</div>\r\n</main>\r\n"
+    "<script>\r\n    export let titulo;\r\n</script>\r\n<style>nav{margin-bottom:20px}</style>\r\n<nav class=\"flex items-center justify-between bg-teal-500 p-6\">\r\n  <div class=\"flex w-500 items-center flex-shrink-0 text-white mr-6\">    \r\n    <span class=\"font-semibold text-xl tracking-tight\">{titulo}</span>\r\n  </div>  \r\n</nav>"
   ],
   "names": [],
-  "mappings": "AAI2B,oBAAM,CAAC,QAAQ,KAAK,CAAC,IAAI,CAAC,oBAAM,CAAC,MAAM,IAAI,CAAC;ACDhE,kBAAG,CAAC,cAAc,IAAI,CAAC;ACcvB,mBAAI,CAAC,MAAM,GAAG,CAAC,OAAO,CAAC,CAAC,IAAI,CAAC,OAAO,GAAG,CAAC,KAAK,CAAC,IAAI,CAAC,iBAAiB,IAAI,CAAC,MAAM,IAAI,CAAC,YAAY,SAAS,CAAC"
+  "mappings": "AAI2B,oBAAM,CAAC,QAAQ,KAAK,CAAC,IAAI,CAAC,oBAAM,CAAC,MAAM,IAAI,CAAC;ACDhE,kBAAG,CAAC,cAAc,IAAI,CAAC"
 }

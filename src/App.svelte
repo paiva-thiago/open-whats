@@ -28,9 +28,16 @@
 		}
 </style>
 <main>
-<a class="github-fork-ribbon" href="https://url.to-your.repo" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+<a class="github-fork-ribbon" href="https://github.com/paiva-thiago/open-whats" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
   <Head titulo={tit}/>
+  <div class="bg-teal-100 border-t border-b border-teal-500 text-teal-700 px-4 py-3 top-100 pb-100" role="alert">
+	  <p class="font-bold">VOCÊ</p>
+	  <p class="text-sm">Já precisou mandar aquele zap pra aquele contato que você não quer adicionar??</p>
+	  <p class="text-sm">SEUS PROBLEMAS ACABARAM! - Chegou o OpenWhats! Selecione o código do país e preencha com o DDD + número, que o OpenWhats abre pra você!</p>
+	</div>  
+ <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
   <Phone bind:ddi={ddi} bind:phone={phone}/>
   <Button open={abreZap} />
-  
+  </div>
 </main>
+

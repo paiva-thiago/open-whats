@@ -1506,7 +1506,7 @@
     			attr(input, "type", "tel");
     			input.placeholder = "Phone";
     			input.size = "9";
-    			add_location(input, file$1, 228, 0, 12392);
+    			add_location(input, file$1, 230, 0, 12398);
 
     			dispose = [
     				listen(select, "change", ctx.select_change_handler),
@@ -1904,7 +1904,7 @@
     const file$3 = "src\\App.svelte";
 
     function create_fragment$3(ctx) {
-    	var title_value, link, t0, main, a, t2, t3, updating_ddi, updating_phone, t4, current;
+    	var title_value, link, t0, main, a, t2, t3, div0, p0, t5, p1, t7, p2, t9, div1, updating_ddi, updating_phone, t10, current;
 
     	document.title = title_value = tit;
 
@@ -1952,17 +1952,39 @@
     			t2 = space();
     			head.$$.fragment.c();
     			t3 = space();
+    			div0 = element("div");
+    			p0 = element("p");
+    			p0.textContent = "VOCÊ";
+    			t5 = space();
+    			p1 = element("p");
+    			p1.textContent = "Já precisou mandar aquele zap pra aquele contato que você não quer adicionar??";
+    			t7 = space();
+    			p2 = element("p");
+    			p2.textContent = "SEUS PROBLEMAS ACABARAM! - Chegou o OpenWhats! Selecione o código do país e preencha com o DDD + número, que o OpenWhats abre pra você!";
+    			t9 = space();
+    			div1 = element("div");
     			phone_1.$$.fragment.c();
-    			t4 = space();
+    			t10 = space();
     			button.$$.fragment.c();
     			link.rel = "stylesheet";
     			link.href = "https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.3/gh-fork-ribbon.min.css";
     			add_location(link, file$3, 16, 1, 417);
     			a.className = "github-fork-ribbon";
-    			a.href = "https://url.to-your.repo";
+    			a.href = "https://github.com/paiva-thiago/open-whats";
     			a.dataset.ribbon = "Fork me on GitHub";
     			a.title = "Fork me on GitHub";
     			add_location(a, file$3, 20, 0, 689);
+    			p0.className = "font-bold";
+    			add_location(p0, file$3, 23, 3, 992);
+    			p1.className = "text-sm";
+    			add_location(p1, file$3, 24, 3, 1026);
+    			p2.className = "text-sm";
+    			add_location(p2, file$3, 25, 3, 1132);
+    			div0.className = "bg-teal-100 border-t border-b border-teal-500 text-teal-700 px-4 py-3 top-100 pb-100";
+    			attr(div0, "role", "alert");
+    			add_location(div0, file$3, 22, 2, 876);
+    			div1.className = "bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4";
+    			add_location(div1, file$3, 27, 1, 1304);
     			add_location(main, file$3, 19, 0, 681);
     		},
 
@@ -1978,9 +2000,17 @@
     			append(main, t2);
     			mount_component(head, main, null);
     			append(main, t3);
-    			mount_component(phone_1, main, null);
-    			append(main, t4);
-    			mount_component(button, main, null);
+    			append(main, div0);
+    			append(div0, p0);
+    			append(div0, t5);
+    			append(div0, p1);
+    			append(div0, t7);
+    			append(div0, p2);
+    			append(main, t9);
+    			append(main, div1);
+    			mount_component(phone_1, div1, null);
+    			append(div1, t10);
+    			mount_component(button, div1, null);
     			current = true;
     		},
 
