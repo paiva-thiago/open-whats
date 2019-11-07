@@ -4,7 +4,7 @@ Já precisou mandar zap pra aquele contato que você não quer adicionar? Nunca 
 
 Have you ever need to send a whatsapp message to someone that's not in your mobile contact list? There's THE solution!
 
-[OPEN WHATS](http://thiagopaiva.com/open-whats/)
+[OPEN WHATS](http://open-whats.surge.sh)
 
 Selecione o DDI e preencha com o DDD + número, que o open-whats abre pra você.
 
