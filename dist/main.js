@@ -4,6 +4,7 @@
     'use strict';
 
     function noop() { }
+    const identity = x => x;
     function add_location(element, file, line, column, char) {
         element.__svelte_meta = {
             loc: { file, line, column, char }
@@ -23,6 +24,41 @@
     }
     function safe_not_equal(a, b) {
         return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+    }
+
+    const is_client = typeof window !== 'undefined';
+    let now = is_client
+        ? () => window.performance.now()
+        : () => Date.now();
+    let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
+
+    const tasks = new Set();
+    let running = false;
+    function run_tasks() {
+        tasks.forEach(task => {
+            if (!task[0](now())) {
+                tasks.delete(task);
+                task[1]();
+            }
+        });
+        running = tasks.size > 0;
+        if (running)
+            raf(run_tasks);
+    }
+    function loop(fn) {
+        let task;
+        if (!running) {
+            running = true;
+            raf(run_tasks);
+        }
+        return {
+            promise: new Promise(fulfil => {
+                tasks.add(task = [fn, fulfil]);
+            }),
+            abort() {
+                tasks.delete(task);
+            }
+        };
     }
 
     function append(target, node) {
@@ -77,6 +113,62 @@
         const e = document.createEvent('CustomEvent');
         e.initCustomEvent(type, false, false, detail);
         return e;
+    }
+
+    let stylesheet;
+    let active = 0;
+    let current_rules = {};
+    // https://github.com/darkskyapp/string-hash/blob/master/index.js
+    function hash(str) {
+        let hash = 5381;
+        let i = str.length;
+        while (i--)
+            hash = ((hash << 5) - hash) ^ str.charCodeAt(i);
+        return hash >>> 0;
+    }
+    function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+        const step = 16.666 / duration;
+        let keyframes = '{\n';
+        for (let p = 0; p <= 1; p += step) {
+            const t = a + (b - a) * ease(p);
+            keyframes += p * 100 + `%{${fn(t, 1 - t)}}\n`;
+        }
+        const rule = keyframes + `100% {${fn(b, 1 - b)}}\n}`;
+        const name = `__svelte_${hash(rule)}_${uid}`;
+        if (!current_rules[name]) {
+            if (!stylesheet) {
+                const style = element('style');
+                document.head.appendChild(style);
+                stylesheet = style.sheet;
+            }
+            current_rules[name] = true;
+            stylesheet.insertRule(`@keyframes ${name} ${rule}`, stylesheet.cssRules.length);
+        }
+        const animation = node.style.animation || '';
+        node.style.animation = `${animation ? `${animation}, ` : ``}${name} ${duration}ms linear ${delay}ms 1 both`;
+        active += 1;
+        return name;
+    }
+    function delete_rule(node, name) {
+        node.style.animation = (node.style.animation || '')
+            .split(', ')
+            .filter(name
+            ? anim => anim.indexOf(name) < 0 // remove specific animation
+            : anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
+        )
+            .join(', ');
+        if (name && !--active)
+            clear_rules();
+    }
+    function clear_rules() {
+        raf(() => {
+            if (active)
+                return;
+            let i = stylesheet.cssRules.length;
+            while (i--)
+                stylesheet.deleteRule(i);
+            current_rules = {};
+        });
     }
 
     let current_component;
@@ -141,8 +233,35 @@
             $$.after_update.forEach(add_render_callback);
         }
     }
+
+    let promise;
+    function wait() {
+        if (!promise) {
+            promise = Promise.resolve();
+            promise.then(() => {
+                promise = null;
+            });
+        }
+        return promise;
+    }
+    function dispatch(node, direction, kind) {
+        node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+    }
     const outroing = new Set();
     let outros;
+    function group_outros() {
+        outros = {
+            r: 0,
+            c: [],
+            p: outros // parent group
+        };
+    }
+    function check_outros() {
+        if (!outros.r) {
+            run_all(outros.c);
+        }
+        outros = outros.p;
+    }
     function transition_in(block, local) {
         if (block && block.i) {
             outroing.delete(block);
@@ -164,6 +283,125 @@
             });
             block.o(local);
         }
+    }
+    const null_transition = { duration: 0 };
+    function create_in_transition(node, fn, params) {
+        let config = fn(node, params);
+        let running = false;
+        let animation_name;
+        let task;
+        let uid = 0;
+        function cleanup() {
+            if (animation_name)
+                delete_rule(node, animation_name);
+        }
+        function go() {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            if (css)
+                animation_name = create_rule(node, 0, 1, duration, delay, easing, css, uid++);
+            tick(0, 1);
+            const start_time = now() + delay;
+            const end_time = start_time + duration;
+            if (task)
+                task.abort();
+            running = true;
+            add_render_callback(() => dispatch(node, true, 'start'));
+            task = loop(now => {
+                if (running) {
+                    if (now >= end_time) {
+                        tick(1, 0);
+                        dispatch(node, true, 'end');
+                        cleanup();
+                        return running = false;
+                    }
+                    if (now >= start_time) {
+                        const t = easing((now - start_time) / duration);
+                        tick(t, 1 - t);
+                    }
+                }
+                return running;
+            });
+        }
+        let started = false;
+        return {
+            start() {
+                if (started)
+                    return;
+                delete_rule(node);
+                if (is_function(config)) {
+                    config = config();
+                    wait().then(go);
+                }
+                else {
+                    go();
+                }
+            },
+            invalidate() {
+                started = false;
+            },
+            end() {
+                if (running) {
+                    cleanup();
+                    running = false;
+                }
+            }
+        };
+    }
+    function create_out_transition(node, fn, params) {
+        let config = fn(node, params);
+        let running = true;
+        let animation_name;
+        const group = outros;
+        group.r += 1;
+        function go() {
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
+            if (css)
+                animation_name = create_rule(node, 1, 0, duration, delay, easing, css);
+            const start_time = now() + delay;
+            const end_time = start_time + duration;
+            add_render_callback(() => dispatch(node, false, 'start'));
+            loop(now => {
+                if (running) {
+                    if (now >= end_time) {
+                        tick(0, 1);
+                        dispatch(node, false, 'end');
+                        if (!--group.r) {
+                            // this will result in `end()` being called,
+                            // so we don't need to clean up here
+                            run_all(group.c);
+                        }
+                        return false;
+                    }
+                    if (now >= start_time) {
+                        const t = easing((now - start_time) / duration);
+                        tick(1 - t, t);
+                    }
+                }
+                return running;
+            });
+        }
+        if (is_function(config)) {
+            wait().then(() => {
+                // @ts-ignore
+                config = config();
+                go();
+            });
+        }
+        else {
+            go();
+        }
+        return {
+            end(reset) {
+                if (reset && config.tick) {
+                    config.tick(1, 0);
+                }
+                if (running) {
+                    if (animation_name)
+                        delete_rule(node, animation_name);
+                    running = false;
+                }
+            }
+        };
     }
 
     function bind(component, name, callback) {
@@ -315,6 +553,10 @@
             dispatch_dev("SvelteDOMRemoveAttribute", { node, attribute });
         else
             dispatch_dev("SvelteDOMSetAttribute", { node, attribute, value });
+    }
+    function prop_dev(node, property, value) {
+        node[property] = value;
+        dispatch_dev("SvelteDOMSetProperty", { node, property, value });
     }
     function set_data_dev(text, data) {
         data = '' + data;
@@ -554,6 +796,34 @@
     	}
     }
 
+    function cubicOut(t) {
+        const f = t - 1.0;
+        return f * f * f + 1.0;
+    }
+
+    function fade(node, { delay = 0, duration = 400 }) {
+        const o = +getComputedStyle(node).opacity;
+        return {
+            delay,
+            duration,
+            css: t => `opacity: ${t * o}`
+        };
+    }
+    function fly(node, { delay = 0, duration = 400, easing = cubicOut, x = 0, y = 0, opacity = 0 }) {
+        const style = getComputedStyle(node);
+        const target_opacity = +style.opacity;
+        const transform = style.transform === 'none' ? '' : style.transform;
+        const od = target_opacity * (1 - opacity);
+        return {
+            delay,
+            duration,
+            easing,
+            css: (t, u) => `
+			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+			opacity: ${target_opacity - (od * u)}`
+        };
+    }
+
     let Ddi = {};
         Ddi.ddiList = [
         {"cdCountry":"55","nmCountry":"Brazil (+55)","isoCountry":"br"}
@@ -577,65 +847,66 @@
         ,{"cdCountry":"1246","nmCountry":"Barbados (+1246)","isoCountry":"bb"}
         ,{"cdCountry":"375","nmCountry":"Belarus (+375)","isoCountry":"by"}
         ,{"cdCountry":"32","nmCountry":"Belgium (+32)","isoCountry":"be"}
-        ,{"cdCountry":"501","nmCountry":"Belize (+501)","isoCountry":""}
-        ,{"cdCountry":"229","nmCountry":"Benin (+229)","isoCountry":""}
-        ,{"cdCountry":"1441","nmCountry":"Bermuda (+1441)","isoCountry":""}
-        ,{"cdCountry":"975","nmCountry":"Bhutan (+975)","isoCountry":""}
-        ,{"cdCountry":"591","nmCountry":"Bolivia (+591)","isoCountry":""}
-        ,{"cdCountry":"387","nmCountry":"Bosnia Herzegovina (+387)","isoCountry":""}
-        ,{"cdCountry":"267","nmCountry":"Botswana (+267)","isoCountry":""}
-        ,{"cdCountry":"673","nmCountry":"Brunei (+673)","isoCountry":""}
-        ,{"cdCountry":"359","nmCountry":"Bulgaria (+359)","isoCountry":""}
-        ,{"cdCountry":"226","nmCountry":"Burkina Faso (+226)","isoCountry":""}
-        ,{"cdCountry":"257","nmCountry":"Burundi (+257)","isoCountry":""}
-        ,{"cdCountry":"855","nmCountry":"Cambodia (+855)","isoCountry":""}
-        ,{"cdCountry":"237","nmCountry":"Cameroon (+237)","isoCountry":""}
-        ,{"cdCountry":"1","nmCountry":"Canada (+1)","isoCountry":""}
-        ,{"cdCountry":"238","nmCountry":"Cape Verde Islands (+238)","isoCountry":""}
-        ,{"cdCountry":"1345","nmCountry":"Cayman Islands (+1345)","isoCountry":""}
-        ,{"cdCountry":"236","nmCountry":"Central African Republic (+236)","isoCountry":""}
+        ,{"cdCountry":"501","nmCountry":"Belize (+501)","isoCountry":"bz"}
+        ,{"cdCountry":"229","nmCountry":"Benin (+229)","isoCountry":"bj"}
+        ,{"cdCountry":"1441","nmCountry":"Bermuda (+1441)","isoCountry":"bm"}
+        ,{"cdCountry":"975","nmCountry":"Bhutan (+975)","isoCountry":"bt"}
+        ,{"cdCountry":"591","nmCountry":"Bolivia (+591)","isoCountry":"bo"}
+        ,{"cdCountry":"387","nmCountry":"Bosnia Herzegovina (+387)","isoCountry":"ba"}
+        ,{"cdCountry":"267","nmCountry":"Botswana (+267)","isoCountry":"bw"}
+        ,{"cdCountry":"673","nmCountry":"Brunei (+673)","isoCountry":"bn"}
+        ,{"cdCountry":"359","nmCountry":"Bulgaria (+359)","isoCountry":"bg"}
+        ,{"cdCountry":"226","nmCountry":"Burkina Faso (+226)","isoCountry":"bf"}
+        ,{"cdCountry":"257","nmCountry":"Burundi (+257)","isoCountry":"bi"}
+        ,{"cdCountry":"855","nmCountry":"Cambodia (+855)","isoCountry":"kh"}
+        ,{"cdCountry":"237","nmCountry":"Cameroon (+237)","isoCountry":"cm"}
+        ,{"cdCountry":"1","nmCountry":"Canada (+1)","isoCountry":"ca"}
+        ,{"cdCountry":"238","nmCountry":"Cape Verde Islands (+238)","isoCountry":"cv"}
+        ,{"cdCountry":"1345","nmCountry":"Cayman Islands (+1345)","isoCountry":"ky"}
+        ,{"cdCountry":"236","nmCountry":"Central African Republic (+236)","isoCountry":"cf"}
+        ,{"cdCountry":"235","nmCountry":"Chade (+235)","isoCountry":"td"}
         ,{"cdCountry":"56","nmCountry":"Chile (+56)","isoCountry":"cl"}
         ,{"cdCountry":"86","nmCountry":"China (+86)","isoCountry":"ch"}
-        ,{"cdCountry":"57","nmCountry":"Colombia (+57)","isoCountry":""}
-        ,{"cdCountry":"269","nmCountry":"Comoros (+269)","isoCountry":""}
-        ,{"cdCountry":"242","nmCountry":"Congo (+242)","isoCountry":""}
-        ,{"cdCountry":"682","nmCountry":"Cook Islands (+682)","isoCountry":""}
-        ,{"cdCountry":"506","nmCountry":"Costa Rica (+506)","isoCountry":""}
-        ,{"cdCountry":"385","nmCountry":"Croatia (+385)","isoCountry":""}
-        ,{"cdCountry":"53","nmCountry":"Cuba (+53)","isoCountry":""}
-        ,{"cdCountry":"90","nmCountry":"Cyprus - North (+90)","isoCountry":""}
-        ,{"cdCountry":"357","nmCountry":"Cyprus - South (+357)","isoCountry":""}
-        ,{"cdCountry":"420","nmCountry":"Czech Republic (+420)","isoCountry":""}
-        ,{"cdCountry":"45","nmCountry":"Denmark (+45)","isoCountry":""}
-        ,{"cdCountry":"253","nmCountry":"Djibouti (+253)","isoCountry":""}
-        ,{"cdCountry":"1809","nmCountry":"Dominica (+1809)","isoCountry":""}
-        ,{"cdCountry":"1809","nmCountry":"Dominican Republic (+1809)","isoCountry":""}
-        ,{"cdCountry":"593","nmCountry":"Ecuador (+593)","isoCountry":""}
-        ,{"cdCountry":"20","nmCountry":"Egypt (+20)","isoCountry":""}
-        ,{"cdCountry":"503","nmCountry":"El Salvador (+503)","isoCountry":""}
-        ,{"cdCountry":"240","nmCountry":"Equatorial Guinea (+240)","isoCountry":""}
-        ,{"cdCountry":"291","nmCountry":"Eritrea (+291)","isoCountry":""}
-        ,{"cdCountry":"372","nmCountry":"Estonia (+372)","isoCountry":""}
-        ,{"cdCountry":"251","nmCountry":"Ethiopia (+251)","isoCountry":""}
-        ,{"cdCountry":"500","nmCountry":"Falkland Islands (+500)","isoCountry":""}
-        ,{"cdCountry":"298","nmCountry":"Faroe Islands (+298)","isoCountry":""}
-        ,{"cdCountry":"679","nmCountry":"Fiji (+679)","isoCountry":""}
-        ,{"cdCountry":"358","nmCountry":"Finland (+358)","isoCountry":""}
-        ,{"cdCountry":"33","nmCountry":"France (+33)","isoCountry":""}
-        ,{"cdCountry":"594","nmCountry":"French Guiana (+594)","isoCountry":""}
-        ,{"cdCountry":"689","nmCountry":"French Polynesia (+689)","isoCountry":""}
-        ,{"cdCountry":"241","nmCountry":"Gabon (+241)","isoCountry":""}
-        ,{"cdCountry":"220","nmCountry":"Gambia (+220)","isoCountry":""}
-        ,{"cdCountry":"7880","nmCountry":"Georgia (+7880)","isoCountry":""}
+        ,{"cdCountry":"57","nmCountry":"Colombia (+57)","isoCountry":"co"}
+        ,{"cdCountry":"269","nmCountry":"Comoros (+269)","isoCountry":"km"}
+        ,{"cdCountry":"242","nmCountry":"Congo (+242)","isoCountry":"cg"}
+        ,{"cdCountry":"682","nmCountry":"Cook Islands (+682)","isoCountry":"ck"}
+        ,{"cdCountry":"506","nmCountry":"Costa Rica (+506)","isoCountry":"cr"}
+        ,{"cdCountry":"385","nmCountry":"Croatia (+385)","isoCountry":"hr"}
+        ,{"cdCountry":"53","nmCountry":"Cuba (+53)","isoCountry":"cy"}
+        ,{"cdCountry":"90","nmCountry":"Cyprus - North (+90)","isoCountry":"un"}
+        ,{"cdCountry":"357","nmCountry":"Cyprus - South (+357)","isoCountry":"cy"}
+        ,{"cdCountry":"420","nmCountry":"Czech Republic (+420)","isoCountry":"cz"}
+        ,{"cdCountry":"45","nmCountry":"Denmark (+45)","isoCountry":"dk"}
+        ,{"cdCountry":"253","nmCountry":"Djibouti (+253)","isoCountry":"dj"}
+        ,{"cdCountry":"1809","nmCountry":"Dominica (+1809)","isoCountry":"dm"}
+        ,{"cdCountry":"1809","nmCountry":"Dominican Republic (+1809)","isoCountry":"do"}
+        ,{"cdCountry":"593","nmCountry":"Ecuador (+593)","isoCountry":"ec"}
+        ,{"cdCountry":"20","nmCountry":"Egypt (+20)","isoCountry":"eg"}
+        ,{"cdCountry":"503","nmCountry":"El Salvador (+503)","isoCountry":"sv"}
+        ,{"cdCountry":"240","nmCountry":"Equatorial Guinea (+240)","isoCountry":"gq"}
+        ,{"cdCountry":"291","nmCountry":"Eritrea (+291)","isoCountry":"er"}
+        ,{"cdCountry":"372","nmCountry":"Estonia (+372)","isoCountry":"ee"}
+        ,{"cdCountry":"251","nmCountry":"Ethiopia (+251)","isoCountry":"et"}
+        ,{"cdCountry":"500","nmCountry":"Falkland Islands (+500)","isoCountry":"fk"}
+        ,{"cdCountry":"298","nmCountry":"Faroe Islands (+298)","isoCountry":"fo"}
+        ,{"cdCountry":"679","nmCountry":"Fiji (+679)","isoCountry":"fj"}
+        ,{"cdCountry":"358","nmCountry":"Finland (+358)","isoCountry":"fi"}
+        ,{"cdCountry":"33","nmCountry":"France (+33)","isoCountry":"fr"}
+        ,{"cdCountry":"594","nmCountry":"French Guiana (+594)","isoCountry":"gf"}
+        ,{"cdCountry":"689","nmCountry":"French Polynesia (+689)","isoCountry":"pf"}
+        ,{"cdCountry":"241","nmCountry":"Gabon (+241)","isoCountry":"ga"}
+        ,{"cdCountry":"220","nmCountry":"Gambia (+220)","isoCountry":"gm"}
+        ,{"cdCountry":"7880","nmCountry":"Georgia (+7880)","isoCountry":"ge"}
         ,{"cdCountry":"49","nmCountry":"Germany (+49)","isoCountry":"de"}
-        ,{"cdCountry":"233","nmCountry":"Ghana (+233)","isoCountry":""}
-        ,{"cdCountry":"350","nmCountry":"Gibraltar (+350)","isoCountry":""}
-        ,{"cdCountry":"30","nmCountry":"Greece (+30)","isoCountry":""}
-        ,{"cdCountry":"299","nmCountry":"Greenland (+299)","isoCountry":""}
-        ,{"cdCountry":"1473","nmCountry":"Grenada (+1473)","isoCountry":""}
-        ,{"cdCountry":"590","nmCountry":"Guadeloupe (+590)","isoCountry":""}
-        ,{"cdCountry":"671","nmCountry":"Guam (+671)","isoCountry":""}
-        ,{"cdCountry":"502","nmCountry":"Guatemala (+502)","isoCountry":""}
+        ,{"cdCountry":"233","nmCountry":"Ghana (+233)","isoCountry":"gh"}
+        ,{"cdCountry":"350","nmCountry":"Gibraltar (+350)","isoCountry":"gi"}
+        ,{"cdCountry":"30","nmCountry":"Greece (+30)","isoCountry":"gr"}
+        ,{"cdCountry":"299","nmCountry":"Greenland (+299)","isoCountry":"gl"}
+        ,{"cdCountry":"1473","nmCountry":"Grenada (+1473)","isoCountry":"gd"}
+        ,{"cdCountry":"590","nmCountry":"Guadeloupe (+590)","isoCountry":"gp"}
+        ,{"cdCountry":"671","nmCountry":"Guam (+671)","isoCountry":"gu"}
+        ,{"cdCountry":"502","nmCountry":"Guatemala (+502)","isoCountry":"gt"}
         ,{"cdCountry":"224","nmCountry":"Guinea (+224)","isoCountry":""}
         ,{"cdCountry":"245","nmCountry":"Guinea - Bissau (+245)","isoCountry":""}
         ,{"cdCountry":"592","nmCountry":"Guyana (+592)","isoCountry":""}
@@ -683,7 +954,7 @@
         ,{"cdCountry":"222","nmCountry":"Mauritania (+222)","isoCountry":""}
         ,{"cdCountry":"269","nmCountry":"Mayotte (+269)","isoCountry":""}
         ,{"cdCountry":"52","nmCountry":"Mexico (+52)","isoCountry":"mx"}
-        ,{"cdCountry":"691","nmCountry":"Micronesia (+691)","isoCountry":""}
+        ,{"cdCountry":"691","nmCountry":"Micronesia (+691)","isoCountry":"fm"}
         ,{"cdCountry":"373","nmCountry":"Moldova (+373)","isoCountry":""}
         ,{"cdCountry":"377","nmCountry":"Monaco (+377)","isoCountry":""}
         ,{"cdCountry":"976","nmCountry":"Mongolia (+976)","isoCountry":""}
@@ -784,7 +1055,111 @@
     	return child_ctx;
     }
 
-    // (12:8) {#each ddiList as iCountry}
+    // (36:4) {#if visible}
+    function create_if_block(ctx) {
+    	var div0, t_1, div1, div1_intro, div1_outro, current, dispose;
+
+    	let each_value = ctx.ddiList;
+
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div0 = element("div");
+    			div0.textContent = " ";
+    			t_1 = space();
+    			div1 = element("div");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+    			attr_dev(div0, "class", "background svelte-rxf6v");
+    			add_location(div0, file$2, 36, 8, 2471);
+    			attr_dev(div1, "class", "options-fake  svelte-rxf6v");
+    			add_location(div1, file$2, 37, 12, 2538);
+    			dispose = listen_dev(div0, "click", ctx.close);
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div0, anchor);
+    			insert_dev(target, t_1, anchor);
+    			insert_dev(target, div1, anchor);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div1, null);
+    			}
+
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.ddiList || changed.ddi) {
+    				each_value = ctx.ddiList;
+
+    				let i;
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div1, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+    				each_blocks.length = each_value.length;
+    			}
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			add_render_callback(() => {
+    				if (div1_outro) div1_outro.end(1);
+    				if (!div1_intro) div1_intro = create_in_transition(div1, fly, {});
+    				div1_intro.start();
+    			});
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			if (div1_intro) div1_intro.invalidate();
+
+    			div1_outro = create_out_transition(div1, fade, {});
+
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach_dev(div0);
+    				detach_dev(t_1);
+    				detach_dev(div1);
+    			}
+
+    			destroy_each(each_blocks, detaching);
+
+    			if (detaching) {
+    				if (div1_outro) div1_outro.end();
+    			}
+
+    			dispose();
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block.name, type: "if", source: "(36:4) {#if visible}", ctx });
+    	return block;
+    }
+
+    // (39:16) {#each ddiList as iCountry}
     function create_each_block(ctx) {
     	var div, input, t0, label, span, t1_value = ctx.iCountry.nmCountry + "", t1, t2, dispose;
 
@@ -803,15 +1178,20 @@
     			attr_dev(input, "id", "opt-" + ctx.iCountry.cdCountry);
     			input.__value = ctx.iCountry.cdCountry;
     			input.value = input.__value;
-    			attr_dev(input, "class", "svelte-11xm486");
-    			add_location(input, file$2, 13, 16, 960);
-    			attr_dev(span, "class", "flag-icon flag-icon-" + ctx.iCountry.isoCountry + " svelte-11xm486");
-    			add_location(span, file$2, 14, 54, 1123);
+    			attr_dev(input, "class", "svelte-rxf6v");
+    			add_location(input, file$2, 40, 24, 2699);
+    			attr_dev(span, "class", "flag-icon flag-icon-" + ctx.iCountry.isoCountry + " svelte-rxf6v");
+    			add_location(span, file$2, 41, 62, 2897);
     			attr_dev(label, "for", "opt-" + ctx.iCountry.cdCountry);
-    			add_location(label, file$2, 14, 16, 1085);
-    			attr_dev(div, "class", "option-fake");
-    			add_location(div, file$2, 12, 12, 917);
-    			dispose = listen_dev(input, "change", ctx.input_change_handler);
+    			attr_dev(label, "class", "svelte-rxf6v");
+    			add_location(label, file$2, 41, 24, 2859);
+    			attr_dev(div, "class", "option-fake svelte-rxf6v");
+    			add_location(div, file$2, 39, 20, 2648);
+
+    			dispose = [
+    				listen_dev(input, "change", ctx.input_change_handler),
+    				listen_dev(input, "change", ctx.clickCountry)
+    			];
     		},
 
     		m: function mount(target, anchor) {
@@ -837,47 +1217,60 @@
     			}
 
     			ctx.$$binding_groups[0].splice(ctx.$$binding_groups[0].indexOf(input), 1);
-    			dispose();
+    			run_all(dispose);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block.name, type: "each", source: "(12:8) {#each ddiList as iCountry}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block.name, type: "each", source: "(39:16) {#each ddiList as iCountry}", ctx });
     	return block;
     }
 
     function create_fragment$2(ctx) {
-    	var div1, div0, t0, input, t1, dispose;
+    	var div1, div0, input0, input0_id_value, input0_value_value, t0, label, span, span_class_value, t1_value = ctx.country.nmCountry + "", t1, label_for_value, t2, t3, input1, current, dispose;
 
-    	let each_value = ctx.ddiList;
-
-    	let each_blocks = [];
-
-    	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
-    	}
+    	var if_block = (ctx.visible) && create_if_block(ctx);
 
     	const block = {
     		c: function create() {
     			div1 = element("div");
     			div0 = element("div");
-
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].c();
-    			}
-
+    			input0 = element("input");
     			t0 = space();
-    			input = element("input");
-    			t1 = text(ctx.ddi);
-    			attr_dev(div0, "class", "options-fake ");
-    			add_location(div0, file$2, 10, 8, 839);
-    			attr_dev(div1, "class", "wafield select-fake svelte-11xm486");
-    			add_location(div1, file$2, 9, 5, 787);
-    			attr_dev(input, "class", "wafield form-input mt-1 w-1000  svelte-11xm486");
-    			attr_dev(input, "id", "tel");
-    			attr_dev(input, "type", "tel");
-    			attr_dev(input, "placeholder", "Phone");
-    			attr_dev(input, "size", "9");
-    			add_location(input, file$2, 21, 0, 1285);
-    			dispose = listen_dev(input, "input", ctx.input_input_handler);
+    			label = element("label");
+    			span = element("span");
+    			t1 = text(t1_value);
+    			t2 = space();
+    			if (if_block) if_block.c();
+    			t3 = space();
+    			input1 = element("input");
+    			ctx.$$binding_groups[0].push(input0);
+    			attr_dev(input0, "type", "radio");
+    			attr_dev(input0, "name", "ddi");
+    			attr_dev(input0, "id", input0_id_value = "opt-" + ctx.country.cdCountry);
+    			input0.__value = input0_value_value = ctx.country.cdCountry;
+    			input0.value = input0.__value;
+    			attr_dev(input0, "class", "svelte-rxf6v");
+    			add_location(input0, file$2, 31, 12, 2161);
+    			attr_dev(span, "class", span_class_value = "flag-icon flag-icon-" + ctx.country.isoCountry + " svelte-rxf6v");
+    			add_location(span, file$2, 32, 49, 2317);
+    			attr_dev(label, "for", label_for_value = "opt-" + ctx.country.cdCountry);
+    			attr_dev(label, "class", "svelte-rxf6v");
+    			add_location(label, file$2, 32, 12, 2280);
+    			attr_dev(div0, "class", "option-fake selected svelte-rxf6v");
+    			add_location(div0, file$2, 30, 8, 2113);
+    			attr_dev(div1, "class", "wafield select-fake svelte-rxf6v");
+    			add_location(div1, file$2, 29, 5, 2041);
+    			attr_dev(input1, "class", "wafield form-input mt-1 w-1000  svelte-rxf6v");
+    			attr_dev(input1, "id", "tel");
+    			attr_dev(input1, "type", "tel");
+    			attr_dev(input1, "placeholder", "Phone");
+    			attr_dev(input1, "size", "9");
+    			add_location(input1, file$2, 48, 0, 3086);
+
+    			dispose = [
+    				listen_dev(input0, "change", ctx.input0_change_handler),
+    				listen_dev(div1, "click", ctx.clickList),
+    				listen_dev(input1, "input", ctx.input1_input_handler)
+    			];
     		},
 
     		l: function claim(nodes) {
@@ -887,66 +1280,100 @@
     		m: function mount(target, anchor) {
     			insert_dev(target, div1, anchor);
     			append_dev(div1, div0);
+    			append_dev(div0, input0);
 
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(div0, null);
-    			}
+    			input0.checked = input0.__value === ctx.ddi;
 
-    			insert_dev(target, t0, anchor);
-    			insert_dev(target, input, anchor);
+    			append_dev(div0, t0);
+    			append_dev(div0, label);
+    			append_dev(label, span);
+    			append_dev(label, t1);
+    			insert_dev(target, t2, anchor);
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, t3, anchor);
+    			insert_dev(target, input1, anchor);
 
-    			set_input_value(input, ctx.phone);
+    			set_input_value(input1, ctx.phone);
 
-    			insert_dev(target, t1, anchor);
+    			current = true;
     		},
 
     		p: function update(changed, ctx) {
-    			if (changed.ddiList || changed.ddi) {
-    				each_value = ctx.ddiList;
+    			if (changed.ddi) input0.checked = input0.__value === ctx.ddi;
 
-    				let i;
-    				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context(ctx, each_value, i);
-
-    					if (each_blocks[i]) {
-    						each_blocks[i].p(changed, child_ctx);
-    					} else {
-    						each_blocks[i] = create_each_block(child_ctx);
-    						each_blocks[i].c();
-    						each_blocks[i].m(div0, null);
-    					}
-    				}
-
-    				for (; i < each_blocks.length; i += 1) {
-    					each_blocks[i].d(1);
-    				}
-    				each_blocks.length = each_value.length;
+    			if ((!current || changed.country) && input0_id_value !== (input0_id_value = "opt-" + ctx.country.cdCountry)) {
+    				attr_dev(input0, "id", input0_id_value);
     			}
 
-    			if (changed.phone) set_input_value(input, ctx.phone);
-
-    			if (changed.ddi) {
-    				set_data_dev(t1, ctx.ddi);
+    			if ((!current || changed.country) && input0_value_value !== (input0_value_value = ctx.country.cdCountry)) {
+    				prop_dev(input0, "__value", input0_value_value);
     			}
+
+    			input0.value = input0.__value;
+
+    			if ((!current || changed.country) && span_class_value !== (span_class_value = "flag-icon flag-icon-" + ctx.country.isoCountry + " svelte-rxf6v")) {
+    				attr_dev(span, "class", span_class_value);
+    			}
+
+    			if ((!current || changed.country) && t1_value !== (t1_value = ctx.country.nmCountry + "")) {
+    				set_data_dev(t1, t1_value);
+    			}
+
+    			if ((!current || changed.country) && label_for_value !== (label_for_value = "opt-" + ctx.country.cdCountry)) {
+    				attr_dev(label, "for", label_for_value);
+    			}
+
+    			if (ctx.visible) {
+    				if (if_block) {
+    					if_block.p(changed, ctx);
+    					transition_in(if_block, 1);
+    				} else {
+    					if_block = create_if_block(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(t3.parentNode, t3);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+    				check_outros();
+    			}
+
+    			if (changed.phone) set_input_value(input1, ctx.phone);
     		},
 
-    		i: noop,
-    		o: noop,
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(if_block);
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(if_block);
+    			current = false;
+    		},
 
     		d: function destroy(detaching) {
     			if (detaching) {
     				detach_dev(div1);
     			}
 
-    			destroy_each(each_blocks, detaching);
+    			ctx.$$binding_groups[0].splice(ctx.$$binding_groups[0].indexOf(input0), 1);
 
     			if (detaching) {
-    				detach_dev(t0);
-    				detach_dev(input);
-    				detach_dev(t1);
+    				detach_dev(t2);
     			}
 
-    			dispose();
+    			if (if_block) if_block.d(detaching);
+
+    			if (detaching) {
+    				detach_dev(t3);
+    				detach_dev(input1);
+    			}
+
+    			run_all(dispose);
     		}
     	};
     	dispatch_dev("SvelteRegisterBlock", { block, id: create_fragment$2.name, type: "component", source: "", ctx });
@@ -954,8 +1381,27 @@
     }
 
     function instance$2($$self, $$props, $$invalidate) {
-    	let { ddi='', phone='' } = $$props;
+    	
+        let { ddi='', phone='' } = $$props;
+        let country = {"cdCountry":"00","nmCountry":"None(nenhum)","isoCountry":"un"};
         let ddiList = ddi_1.ddiList;
+        let findCountry = async (code)=>{
+            const search = ddiList.filter((x)=>x.cdCountry===code);
+            if(search.length>0){
+                return search[0];
+            }
+            return {"cdCountry":"00","nmCountry":"notFound","isoCountry":"un"};
+        };
+        let retornaPais = async(code)=>{
+            $$invalidate('country', country = await findCountry(code));
+        };
+        let visible = false;
+        let clickList = ()=>{$$invalidate('visible', visible=true);};
+        let clickCountry = async()=>{
+            $$invalidate('country', country = await findCountry(ddi));
+            $$invalidate('visible', visible=false);
+        };
+        let close = ()=>{$$invalidate('visible', visible=false);};
 
     	const writable_props = ['ddi', 'phone'];
     	Object.keys($$props).forEach(key => {
@@ -964,12 +1410,17 @@
 
     	const $$binding_groups = [[]];
 
+    	function input0_change_handler() {
+    		ddi = this.__value;
+    		$$invalidate('ddi', ddi);
+    	}
+
     	function input_change_handler() {
     		ddi = this.__value;
     		$$invalidate('ddi', ddi);
     	}
 
-    	function input_input_handler() {
+    	function input1_input_handler() {
     		phone = this.value;
     		$$invalidate('phone', phone);
     	}
@@ -980,21 +1431,34 @@
     	};
 
     	$$self.$capture_state = () => {
-    		return { ddi, phone, ddiList };
+    		return { ddi, phone, country, ddiList, findCountry, retornaPais, visible, clickList, clickCountry, close };
     	};
 
     	$$self.$inject_state = $$props => {
     		if ('ddi' in $$props) $$invalidate('ddi', ddi = $$props.ddi);
     		if ('phone' in $$props) $$invalidate('phone', phone = $$props.phone);
+    		if ('country' in $$props) $$invalidate('country', country = $$props.country);
     		if ('ddiList' in $$props) $$invalidate('ddiList', ddiList = $$props.ddiList);
+    		if ('findCountry' in $$props) findCountry = $$props.findCountry;
+    		if ('retornaPais' in $$props) retornaPais = $$props.retornaPais;
+    		if ('visible' in $$props) $$invalidate('visible', visible = $$props.visible);
+    		if ('clickList' in $$props) $$invalidate('clickList', clickList = $$props.clickList);
+    		if ('clickCountry' in $$props) $$invalidate('clickCountry', clickCountry = $$props.clickCountry);
+    		if ('close' in $$props) $$invalidate('close', close = $$props.close);
     	};
 
     	return {
     		ddi,
     		phone,
+    		country,
     		ddiList,
+    		visible,
+    		clickList,
+    		clickCountry,
+    		close,
+    		input0_change_handler,
     		input_change_handler,
-    		input_input_handler,
+    		input1_input_handler,
     		$$binding_groups
     	};
     }
