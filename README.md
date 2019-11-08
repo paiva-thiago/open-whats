@@ -19,3 +19,8 @@ Select the country code and put the number that open-whats will open the whatsap
 ## O que falta?/Missing
 
 Veja/See [Issues](https://github.com/paiva-thiago/open-whats/issues)
+
+
+## Some idea for the app? Alguma ideia?
+
+[Issues](https://github.com/paiva-thiago/open-whats/issues)
