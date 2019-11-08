@@ -1,7 +1,7 @@
 {
-   "name": "svelte-starter-postcss",
+   "name": "open-whats",
    "version": "1.0.0",
-   "description": "A starter for bulding Svelte web apps, with PostCSS support.",
+   "description": "A application to message whatsapp contacts that are not in the mobile contact list.",
    "main": " ",
    "scripts": {
       "build": "rollup -c",
@@ -13,19 +13,19 @@
    },
    "repository": {
       "type": "git",
-      "url": "git+https://github.com/noprodev/svelte-starter-postcss.git"
+      "url": "git+https://github.com/paiva-thiago/open-whats.git"
    },
    "keywords": [
-      "Svelte",
-      "starter",
-      "PostCSS"
+      "Whatsapp",
+      "Mobile",
+      "Svelte"
    ],
    "author": "noprodev",
    "license": "UNLICENSED",
    "bugs": {
-      "url": "https://github.com/noprodev/svelte-starter-postcss/issues"
+      "url": "https://github.com/paiva-thiago/open-whats/issues"
    },
-   "homepage": "https://github.com/noprodev/svelte-starter-postcss#readme",
+   "homepage": "https://github.com/paiva-thiago/open-whats",
    "devDependencies": {
       "@fullhuman/postcss-purgecss": "^1.3.0",
       "@tailwindcss/custom-forms": "^0.2.1",
