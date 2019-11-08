@@ -81,139 +81,140 @@ let Ddi = {}
     ,{"cdCountry":"590","nmCountry":"Guadeloupe (+590)","isoCountry":"gp"}
     ,{"cdCountry":"671","nmCountry":"Guam (+671)","isoCountry":"gu"}
     ,{"cdCountry":"502","nmCountry":"Guatemala (+502)","isoCountry":"gt"}
-    ,{"cdCountry":"224","nmCountry":"Guinea (+224)","isoCountry":""}
-    ,{"cdCountry":"245","nmCountry":"Guinea - Bissau (+245)","isoCountry":""}
-    ,{"cdCountry":"592","nmCountry":"Guyana (+592)","isoCountry":""}
-    ,{"cdCountry":"509","nmCountry":"Haiti (+509)","isoCountry":""}
-    ,{"cdCountry":"504","nmCountry":"Honduras (+504)","isoCountry":""}
-    ,{"cdCountry":"852","nmCountry":"Hong Kong (+852)","isoCountry":""}
-    ,{"cdCountry":"36","nmCountry":"Hungary (+36)","isoCountry":""}
-    ,{"cdCountry":"354","nmCountry":"Iceland (+354)","isoCountry":""}
-    ,{"cdCountry":"91","nmCountry":"India (+91)","isoCountry":""}
-    ,{"cdCountry":"62","nmCountry":"Indonesia (+62)","isoCountry":""}
-    ,{"cdCountry":"964","nmCountry":"Iraq (+964)","isoCountry":""}
-    ,{"cdCountry":"98","nmCountry":"Iran (+98)","isoCountry":""}
-    ,{"cdCountry":"353","nmCountry":"Ireland (+353)","isoCountry":""}
+    ,{"cdCountry":"224","nmCountry":"Guinea (+224)","isoCountry":"gn"}
+    ,{"cdCountry":"245","nmCountry":"Guinea - Bissau (+245)","isoCountry":"gw"}
+    ,{"cdCountry":"592","nmCountry":"Guyana (+592)","isoCountry":"gy"}
+    ,{"cdCountry":"509","nmCountry":"Haiti (+509)","isoCountry":"ht"}
+    ,{"cdCountry":"504","nmCountry":"Honduras (+504)","isoCountry":"hn"}
+    ,{"cdCountry":"852","nmCountry":"Hong Kong (+852)","isoCountry":"hk"}
+    ,{"cdCountry":"36","nmCountry":"Hungary (+36)","isoCountry":"hu"}
+    ,{"cdCountry":"354","nmCountry":"Iceland (+354)","isoCountry":"is"}
+    ,{"cdCountry":"91","nmCountry":"India (+91)","isoCountry":"in"}
+    ,{"cdCountry":"62","nmCountry":"Indonesia (+62)","isoCountry":"id"}
+    ,{"cdCountry":"964","nmCountry":"Iraq (+964)","isoCountry":"ir"}
+    ,{"cdCountry":"98","nmCountry":"Iran (+98)","isoCountry":"iq"}
+    ,{"cdCountry":"353","nmCountry":"Ireland (+353)","isoCountry":"ie"}
     ,{"cdCountry":"972","nmCountry":"Israel (+972)","isoCountry":"il"}
     ,{"cdCountry":"39","nmCountry":"Italy (+39)","isoCountry":"it"}
-    ,{"cdCountry":"1876","nmCountry":"Jamaica (+1876)","isoCountry":""}
+    ,{"cdCountry":"1876","nmCountry":"Jamaica (+1876)","isoCountry":"jm"}
     ,{"cdCountry":"81","nmCountry":"Japan (+81)","isoCountry":"jp"}
-    ,{"cdCountry":"962","nmCountry":"Jordan (+962)","isoCountry":""}
-    ,{"cdCountry":"7","nmCountry":"Kazakhstan (+7)","isoCountry":""}
-    ,{"cdCountry":"254","nmCountry":"Kenya (+254)","isoCountry":""}
-    ,{"cdCountry":"686","nmCountry":"Kiribati (+686)","isoCountry":""}
-    ,{"cdCountry":"850","nmCountry":"Korea - North (+850)","isoCountry":""}
-    ,{"cdCountry":"82","nmCountry":"Korea - South (+82)","isoCountry":""}
-    ,{"cdCountry":"965","nmCountry":"Kuwait (+965)","isoCountry":""}
-    ,{"cdCountry":"996","nmCountry":"Kyrgyzstan (+996)","isoCountry":""}
-    ,{"cdCountry":"856","nmCountry":"Laos (+856)","isoCountry":""}
-    ,{"cdCountry":"371","nmCountry":"Latvia (+371)","isoCountry":""}
-    ,{"cdCountry":"961","nmCountry":"Lebanon (+961)","isoCountry":""}
-    ,{"cdCountry":"266","nmCountry":"Lesotho (+266)","isoCountry":""}
-    ,{"cdCountry":"231","nmCountry":"Liberia (+231)","isoCountry":""}
-    ,{"cdCountry":"218","nmCountry":"Libya (+218)","isoCountry":""}
-    ,{"cdCountry":"417","nmCountry":"Liechtenstein (+417)","isoCountry":""}
-    ,{"cdCountry":"370","nmCountry":"Lithuania (+370)","isoCountry":""}
-    ,{"cdCountry":"352","nmCountry":"Luxembourg (+352)","isoCountry":""}
-    ,{"cdCountry":"853","nmCountry":"Macao (+853)","isoCountry":""}
-    ,{"cdCountry":"389","nmCountry":"Macedonia (+389)","isoCountry":""}
-    ,{"cdCountry":"261","nmCountry":"Madagascar (+261)","isoCountry":""}
-    ,{"cdCountry":"265","nmCountry":"Malawi (+265)","isoCountry":""}
-    ,{"cdCountry":"60","nmCountry":"Malaysia (+60)","isoCountry":""}
-    ,{"cdCountry":"960","nmCountry":"Maldives (+960)","isoCountry":""}
-    ,{"cdCountry":"223","nmCountry":"Mali (+223)","isoCountry":""}
-    ,{"cdCountry":"356","nmCountry":"Malta (+356)","isoCountry":""}
-    ,{"cdCountry":"692","nmCountry":"Marshall Islands (+692)","isoCountry":""}
-    ,{"cdCountry":"596","nmCountry":"Martinique (+596)","isoCountry":""}
-    ,{"cdCountry":"222","nmCountry":"Mauritania (+222)","isoCountry":""}
-    ,{"cdCountry":"269","nmCountry":"Mayotte (+269)","isoCountry":""}
+    ,{"cdCountry":"962","nmCountry":"Jordan (+962)","isoCountry":"jo"}
+    ,{"cdCountry":"7","nmCountry":"Kazakhstan (+7)","isoCountry":"kz"}
+    ,{"cdCountry":"254","nmCountry":"Kenya (+254)","isoCountry":"ke"}
+    ,{"cdCountry":"686","nmCountry":"Kiribati (+686)","isoCountry":"ki"}
+    ,{"cdCountry":"850","nmCountry":"Korea - North (+850)","isoCountry":"kp"}
+    ,{"cdCountry":"82","nmCountry":"Korea - South (+82)","isoCountry":"kr"}
+    ,{"cdCountry":"965","nmCountry":"Kuwait (+965)","isoCountry":"kw"}
+    ,{"cdCountry":"996","nmCountry":"Kyrgyzstan (+996)","isoCountry":"kg"}
+    ,{"cdCountry":"856","nmCountry":"Laos (+856)","isoCountry":"la"}
+    ,{"cdCountry":"371","nmCountry":"Latvia (+371)","isoCountry":"lv"}
+    ,{"cdCountry":"961","nmCountry":"Lebanon (+961)","isoCountry":"lb"}
+    ,{"cdCountry":"266","nmCountry":"Lesotho (+266)","isoCountry":"ls"}
+    ,{"cdCountry":"231","nmCountry":"Liberia (+231)","isoCountry":"lr"}
+    ,{"cdCountry":"218","nmCountry":"Libya (+218)","isoCountry":"ly"}
+    ,{"cdCountry":"417","nmCountry":"Liechtenstein (+417)","isoCountry":"li"}
+    ,{"cdCountry":"370","nmCountry":"Lithuania (+370)","isoCountry":"lt"}
+    ,{"cdCountry":"352","nmCountry":"Luxembourg (+352)","isoCountry":"lu"}
+    ,{"cdCountry":"853","nmCountry":"Macao (+853)","isoCountry":"mo"}
+    ,{"cdCountry":"389","nmCountry":"Macedonia (+389)","isoCountry":"mk"}
+    ,{"cdCountry":"261","nmCountry":"Madagascar (+261)","isoCountry":"mg"}
+    ,{"cdCountry":"265","nmCountry":"Malawi (+265)","isoCountry":"mw"}
+    ,{"cdCountry":"60","nmCountry":"Malaysia (+60)","isoCountry":"my"}
+    ,{"cdCountry":"960","nmCountry":"Maldives (+960)","isoCountry":"mv"}
+    ,{"cdCountry":"223","nmCountry":"Mali (+223)","isoCountry":"ml"}
+    ,{"cdCountry":"356","nmCountry":"Malta (+356)","isoCountry":"mt"}
+    ,{"cdCountry":"692","nmCountry":"Marshall Islands (+692)","isoCountry":"mh"}
+    ,{"cdCountry":"596","nmCountry":"Martinique (+596)","isoCountry":"mq"}
+    ,{"cdCountry":"222","nmCountry":"Mauritania (+222)","isoCountry":"mr"}
+    ,{"cdCountry":"269","nmCountry":"Mayotte (+269)","isoCountry":"mu"}
     ,{"cdCountry":"52","nmCountry":"Mexico (+52)","isoCountry":"mx"}
     ,{"cdCountry":"691","nmCountry":"Micronesia (+691)","isoCountry":"fm"}
-    ,{"cdCountry":"373","nmCountry":"Moldova (+373)","isoCountry":""}
-    ,{"cdCountry":"377","nmCountry":"Monaco (+377)","isoCountry":""}
-    ,{"cdCountry":"976","nmCountry":"Mongolia (+976)","isoCountry":""}
-    ,{"cdCountry":"1664","nmCountry":"Montserrat (+1664)","isoCountry":""}
-    ,{"cdCountry":"212","nmCountry":"Morocco (+212)","isoCountry":""}
-    ,{"cdCountry":"258","nmCountry":"Mozambique (+258)","isoCountry":""}
-    ,{"cdCountry":"95","nmCountry":"Myanmar (+95)","isoCountry":""}
-    ,{"cdCountry":"264","nmCountry":"Namibia (+264)","isoCountry":""}
-    ,{"cdCountry":"674","nmCountry":"Nauru (+674)","isoCountry":""}
-    ,{"cdCountry":"977","nmCountry":"Nepal (+977)","isoCountry":""}
-    ,{"cdCountry":"31","nmCountry":"Netherlands (+31)","isoCountry":""}
-    ,{"cdCountry":"687","nmCountry":"New Caledonia (+687)","isoCountry":""}
-    ,{"cdCountry":"505","nmCountry":"Nicaragua (+505)","isoCountry":""}
-    ,{"cdCountry":"227","nmCountry":"Niger (+227)","isoCountry":""}
-    ,{"cdCountry":"234","nmCountry":"Nigeria (+234)","isoCountry":""}
-    ,{"cdCountry":"683","nmCountry":"Niue (+683)","isoCountry":""}
-    ,{"cdCountry":"672","nmCountry":"Norfolk Islands (+672)","isoCountry":""}
-    ,{"cdCountry":"670","nmCountry":"Northern Marianas (+670)","isoCountry":""}
+    ,{"cdCountry":"373","nmCountry":"Moldova (+373)","isoCountry":"md"}
+    ,{"cdCountry":"377","nmCountry":"Monaco (+377)","isoCountry":"mc"}
+    ,{"cdCountry":"976","nmCountry":"Mongolia (+976)","isoCountry":"mn"}
+    ,{"cdCountry":"382","nmCountry":"Montenegro (+382)","isoCountry":"me"}
+    ,{"cdCountry":"1664","nmCountry":"Montserrat (+1664)","isoCountry":"ms"}
+    ,{"cdCountry":"212","nmCountry":"Morocco (+212)","isoCountry":"ma"}
+    ,{"cdCountry":"258","nmCountry":"Mozambique (+258)","isoCountry":"mz"}
+    ,{"cdCountry":"95","nmCountry":"Myanmar (+95)","isoCountry":"mm"}
+    ,{"cdCountry":"264","nmCountry":"Namibia (+264)","isoCountry":"na"}
+    ,{"cdCountry":"674","nmCountry":"Nauru (+674)","isoCountry":"nr"}
+    ,{"cdCountry":"977","nmCountry":"Nepal (+977)","isoCountry":"np"}
+    ,{"cdCountry":"31","nmCountry":"Netherlands (+31)","isoCountry":"nl"}
+    ,{"cdCountry":"687","nmCountry":"New Caledonia (+687)","isoCountry":"nc"}
+    ,{"cdCountry":"505","nmCountry":"Nicaragua (+505)","isoCountry":"ni"}
+    ,{"cdCountry":"227","nmCountry":"Niger (+227)","isoCountry":"ne"}
+    ,{"cdCountry":"234","nmCountry":"Nigeria (+234)","isoCountry":"ng"}
+    ,{"cdCountry":"683","nmCountry":"Niue (+683)","isoCountry":"nu"}
+    ,{"cdCountry":"672","nmCountry":"Norfolk Islands (+672)","isoCountry":"nf"}
+    ,{"cdCountry":"670","nmCountry":"Northern Marianas (+670)","isoCountry":"mp"}
     ,{"cdCountry":"47","nmCountry":"Norway (+47)","isoCountry":"no"}
-    ,{"cdCountry":"968","nmCountry":"Oman (+968)","isoCountry":""}
-    ,{"cdCountry":"92","nmCountry":"Pakistan (+92)","isoCountry":""}
-    ,{"cdCountry":"680","nmCountry":"Palau (+680)","isoCountry":""}
-    ,{"cdCountry":"507","nmCountry":"Panama (+507)","isoCountry":""}
-    ,{"cdCountry":"675","nmCountry":"Papua New Guinea (+675)","isoCountry":""}
-    ,{"cdCountry":"595","nmCountry":"Paraguay (+595)","isoCountry":""}
-    ,{"cdCountry":"51","nmCountry":"Peru (+51)","isoCountry":""}
-    ,{"cdCountry":"63","nmCountry":"Philippines (+63)","isoCountry":""}
-    ,{"cdCountry":"48","nmCountry":"Poland (+48)","isoCountry":""}
-    ,{"cdCountry":"351","nmCountry":"Portugal (+351)","isoCountry":""}
-    ,{"cdCountry":"1787","nmCountry":"Puerto Rico (+1787)","isoCountry":""}
-    ,{"cdCountry":"974","nmCountry":"Qatar (+974)","isoCountry":""}
-    ,{"cdCountry":"262","nmCountry":"Reunion (+262)","isoCountry":""}
-    ,{"cdCountry":"40","nmCountry":"Romania (+40)","isoCountry":""}
-    ,{"cdCountry":"7","nmCountry":"Russia (+7)","isoCountry":""}
-    ,{"cdCountry":"250","nmCountry":"Rwanda (+250)","isoCountry":""}
-    ,{"cdCountry":"378","nmCountry":"San Marino (+378)","isoCountry":""}
-    ,{"cdCountry":"239","nmCountry":"Sao Tome &amp; Principe (+239)","isoCountry":""}
-    ,{"cdCountry":"966","nmCountry":"Saudi Arabia (+966)","isoCountry":""}
-    ,{"cdCountry":"221","nmCountry":"Senegal (+221)","isoCountry":""}
-    ,{"cdCountry":"381","nmCountry":"Serbia (+381)","isoCountry":""}
-    ,{"cdCountry":"248","nmCountry":"Seychelles (+248)","isoCountry":""}
-    ,{"cdCountry":"232","nmCountry":"Sierra Leone (+232)","isoCountry":""}
-    ,{"cdCountry":"65","nmCountry":"Singapore (+65)","isoCountry":""}
-    ,{"cdCountry":"421","nmCountry":"Slovak Republic (+421)","isoCountry":""}
-    ,{"cdCountry":"386","nmCountry":"Slovenia (+386)","isoCountry":""}
-    ,{"cdCountry":"677","nmCountry":"Solomon Islands (+677)","isoCountry":""}
-    ,{"cdCountry":"252","nmCountry":"Somalia (+252)","isoCountry":""}
-    ,{"cdCountry":"27","nmCountry":"South Africa (+27)","isoCountry":""}
-    ,{"cdCountry":"34","nmCountry":"Spain (+34)","isoCountry":""}
-    ,{"cdCountry":"94","nmCountry":"Sri Lanka (+94)","isoCountry":""}
-    ,{"cdCountry":"290","nmCountry":"St. Helena (+290)","isoCountry":""}
-    ,{"cdCountry":"1869","nmCountry":"St. Kitts (+1869)","isoCountry":""}
-    ,{"cdCountry":"1758","nmCountry":"St. Lucia (+1758)","isoCountry":""}
-    ,{"cdCountry":"597","nmCountry":"Suriname (+597)","isoCountry":""}
-    ,{"cdCountry":"249","nmCountry":"Sudan (+249)","isoCountry":""}
-    ,{"cdCountry":"268","nmCountry":"Swaziland (+268)","isoCountry":""}
-    ,{"cdCountry":"46","nmCountry":"Sweden (+46)","isoCountry":""}
-    ,{"cdCountry":"41","nmCountry":"Switzerland (+41)","isoCountry":""}
-    ,{"cdCountry":"963","nmCountry":"Syria (+963)","isoCountry":""}
-    ,{"cdCountry":"886","nmCountry":"Taiwan (+886)","isoCountry":""}
-    ,{"cdCountry":"992","nmCountry":"Tajikistan (+992)","isoCountry":""}
-    ,{"cdCountry":"66","nmCountry":"Thailand (+66)","isoCountry":""}
-    ,{"cdCountry":"228","nmCountry":"Togo (+228)","isoCountry":""}
-    ,{"cdCountry":"676","nmCountry":"Tonga (+676)","isoCountry":""}
-    ,{"cdCountry":"1868","nmCountry":"Trinidad &amp; Tobago (+1868)","isoCountry":""}
-    ,{"cdCountry":"216","nmCountry":"Tunisia (+216)","isoCountry":""}
-    ,{"cdCountry":"90","nmCountry":"Turkey (+90)","isoCountry":""}
-    ,{"cdCountry":"993","nmCountry":"Turkmenistan (+993)","isoCountry":""}
-    ,{"cdCountry":"1649","nmCountry":"Turks &amp; Caicos Islands (+1649)","isoCountry":""}
-    ,{"cdCountry":"688","nmCountry":"Tuvalu (+688)","isoCountry":""}
-    ,{"cdCountry":"256","nmCountry":"Uganda (+256)","isoCountry":""}
-    ,{"cdCountry":"380","nmCountry":"Ukraine (+380)","isoCountry":""}
-    ,{"cdCountry":"971","nmCountry":"United Arab Emirates (+971)","isoCountry":""}
+    ,{"cdCountry":"968","nmCountry":"Oman (+968)","isoCountry":"om"}
+    ,{"cdCountry":"92","nmCountry":"Pakistan (+92)","isoCountry":"pk"}
+    ,{"cdCountry":"680","nmCountry":"Palau (+680)","isoCountry":"pw"}
+    ,{"cdCountry":"507","nmCountry":"Panama (+507)","isoCountry":"pa"}
+    ,{"cdCountry":"675","nmCountry":"Papua New Guinea (+675)","isoCountry":"pg"}
+    ,{"cdCountry":"595","nmCountry":"Paraguay (+595)","isoCountry":"py"}
+    ,{"cdCountry":"51","nmCountry":"Peru (+51)","isoCountry":"pe"}
+    ,{"cdCountry":"63","nmCountry":"Philippines (+63)","isoCountry":"ph"}
+    ,{"cdCountry":"48","nmCountry":"Poland (+48)","isoCountry":"pl"}
+    ,{"cdCountry":"351","nmCountry":"Portugal (+351)","isoCountry":"pt"}
+    ,{"cdCountry":"1787","nmCountry":"Puerto Rico (+1787)","isoCountry":"pr"}
+    ,{"cdCountry":"974","nmCountry":"Qatar (+974)","isoCountry":"qa"}
+    ,{"cdCountry":"262","nmCountry":"Reunion (+262)","isoCountry":"cg"}
+    ,{"cdCountry":"40","nmCountry":"Romania (+40)","isoCountry":"ro"}
+    ,{"cdCountry":"7","nmCountry":"Russia (+7)","isoCountry":"ru"}
+    ,{"cdCountry":"250","nmCountry":"Rwanda (+250)","isoCountry":"rw"}
+    ,{"cdCountry":"378","nmCountry":"San Marino (+378)","isoCountry":"sm"}
+    ,{"cdCountry":"239","nmCountry":"Sao Tome &amp; Principe (+239)","isoCountry":"st"}
+    ,{"cdCountry":"966","nmCountry":"Saudi Arabia (+966)","isoCountry":"sa"}
+    ,{"cdCountry":"221","nmCountry":"Senegal (+221)","isoCountry":"sn"}
+    ,{"cdCountry":"381","nmCountry":"Serbia (+381)","isoCountry":"rs"}
+    ,{"cdCountry":"248","nmCountry":"Seychelles (+248)","isoCountry":"sc"}
+    ,{"cdCountry":"232","nmCountry":"Sierra Leone (+232)","isoCountry":"sl"}
+    ,{"cdCountry":"65","nmCountry":"Singapore (+65)","isoCountry":"sg"}
+    ,{"cdCountry":"421","nmCountry":"Slovak Republic (+421)","isoCountry":"sk"}
+    ,{"cdCountry":"386","nmCountry":"Slovenia (+386)","isoCountry":"sl"}
+    ,{"cdCountry":"677","nmCountry":"Solomon Islands (+677)","isoCountry":"sb"}
+    ,{"cdCountry":"252","nmCountry":"Somalia (+252)","isoCountry":"so"}
+    ,{"cdCountry":"27","nmCountry":"South Africa (+27)","isoCountry":"za"}
+    ,{"cdCountry":"34","nmCountry":"Spain (+34)","isoCountry":"es"}
+    ,{"cdCountry":"94","nmCountry":"Sri Lanka (+94)","isoCountry":"lk"}
+    ,{"cdCountry":"290","nmCountry":"St. Helena (+290)","isoCountry":"sh"}
+    ,{"cdCountry":"1869","nmCountry":"St. Kitts (+1869)","isoCountry":"kn"}
+    ,{"cdCountry":"1758","nmCountry":"St. Lucia (+1758)","isoCountry":"lc"}
+    ,{"cdCountry":"597","nmCountry":"Suriname (+597)","isoCountry":"sr"}
+    ,{"cdCountry":"249","nmCountry":"Sudan (+249)","isoCountry":"sd"}
+    ,{"cdCountry":"268","nmCountry":"Swaziland (+268)","isoCountry":"sz"}
+    ,{"cdCountry":"46","nmCountry":"Sweden (+46)","isoCountry":"se"}
+    ,{"cdCountry":"41","nmCountry":"Switzerland (+41)","isoCountry":"ch"}
+    ,{"cdCountry":"963","nmCountry":"Syria (+963)","isoCountry":"sy"}
+    ,{"cdCountry":"886","nmCountry":"Taiwan (+886)","isoCountry":"tw"}
+    ,{"cdCountry":"992","nmCountry":"Tajikistan (+992)","isoCountry":"tj"}
+    ,{"cdCountry":"66","nmCountry":"Thailand (+66)","isoCountry":"th"}
+    ,{"cdCountry":"228","nmCountry":"Togo (+228)","isoCountry":"tg"}
+    ,{"cdCountry":"676","nmCountry":"Tonga (+676)","isoCountry":"to"}
+    ,{"cdCountry":"1868","nmCountry":"Trinidad &amp; Tobago (+1868)","isoCountry":"tt"}
+    ,{"cdCountry":"216","nmCountry":"Tunisia (+216)","isoCountry":"tn"}
+    ,{"cdCountry":"90","nmCountry":"Turkey (+90)","isoCountry":"tr"}
+    ,{"cdCountry":"993","nmCountry":"Turkmenistan (+993)","isoCountry":"tm"}
+    ,{"cdCountry":"1649","nmCountry":"Turks &amp; Caicos Islands (+1649)","isoCountry":"tc"}
+    ,{"cdCountry":"688","nmCountry":"Tuvalu (+688)","isoCountry":"tv"}
+    ,{"cdCountry":"256","nmCountry":"Uganda (+256)","isoCountry":"ug"}
+    ,{"cdCountry":"380","nmCountry":"Ukraine (+380)","isoCountry":"ua"}
+    ,{"cdCountry":"971","nmCountry":"United Arab Emirates (+971)","isoCountry":"ae"}
     ,{"cdCountry":"598","nmCountry":"Uruguay (+598)","isoCountry":"uy"}
-    ,{"cdCountry":"998","nmCountry":"Uzbekistan (+998)","isoCountry":""}
-    ,{"cdCountry":"678","nmCountry":"Vanuatu (+678)","isoCountry":""}
-    ,{"cdCountry":"379","nmCountry":"Vatican City (+379)","isoCountry":""}
-    ,{"cdCountry":"58","nmCountry":"Venezuela (+58)","isoCountry":""}
-    ,{"cdCountry":"84","nmCountry":"Vietnam (+84)","isoCountry":""}
-    ,{"cdCountry":"1","nmCountry":"Virgin Islands - British (+1)","isoCountry":""}
-    ,{"cdCountry":"1","nmCountry":"Virgin Islands - US (+1)","isoCountry":""}
-    ,{"cdCountry":"681","nmCountry":"Wallis &amp; Futuna (+681)","isoCountry":""}
-    ,{"cdCountry":"969","nmCountry":"Yemen (North)(+969)","isoCountry":""}
-    ,{"cdCountry":"967","nmCountry":"Yemen (South)(+967)","isoCountry":""}
-    ,{"cdCountry":"260","nmCountry":"Zambia (+260)","isoCountry":""}
-    ,{"cdCountry":"263","nmCountry":"Zimbabwe (+263)","isoCountry":""}
+    ,{"cdCountry":"998","nmCountry":"Uzbekistan (+998)","isoCountry":"uz"}
+    ,{"cdCountry":"678","nmCountry":"Vanuatu (+678)","isoCountry":"vu"}
+    ,{"cdCountry":"379","nmCountry":"Vatican City (+379)","isoCountry":"va"}
+    ,{"cdCountry":"58","nmCountry":"Venezuela (+58)","isoCountry":"ve"}
+    ,{"cdCountry":"84","nmCountry":"Vietnam (+84)","isoCountry":"vn"}
+    ,{"cdCountry":"1","nmCountry":"Virgin Islands - British (+1)","isoCountry":"vg"}
+    ,{"cdCountry":"1","nmCountry":"Virgin Islands - US (+1)","isoCountry":"vi"}
+    ,{"cdCountry":"681","nmCountry":"Wallis &amp; Futuna (+681)","isoCountry":"wf"}
+    ,{"cdCountry":"969","nmCountry":"Yemen (North)(+969)","isoCountry":"ye"}
+    ,{"cdCountry":"967","nmCountry":"Yemen (South)(+967)","isoCountry":"ye"}
+    ,{"cdCountry":"260","nmCountry":"Zambia (+260)","isoCountry":"zm"}
+    ,{"cdCountry":"263","nmCountry":"Zimbabwe (+263)","isoCountry":"zw"}
     ];
 module.exports = {Ddi}
